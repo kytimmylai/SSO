@@ -30,7 +30,6 @@ typedef union {
             /* capacity is always a power of 2 (unsigned)-1 */
             capacity : 6;
         /* the last 4 bits are important flags */
-            is_ptr : 1;
     };
 } xs;
 
@@ -95,7 +94,7 @@ xs *xs_grow(xs *x, size_t len)
         x->ptr = realloc(x->ptr, (size_t) 1 << len);
         if (!x->ptr) {
             perror("realloc failed");
-            return x;
+            return NULL;
         }
     else {
         char buf[16];
@@ -103,7 +102,7 @@ xs *xs_grow(xs *x, size_t len)
         x->ptr = malloc((size_t) 1 << len);
         if (!x->ptr) {
             perror("malloc failed");
-            return x;
+            return NULL;
         }
         memcpy(x->ptr, buf, 16);
     }
