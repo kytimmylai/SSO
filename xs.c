@@ -198,18 +198,23 @@ xs *xs_trim(xs *x, const char *trimset)
 xs *xs_cpy(xs *dest, xs *src) 
 {
     if (xs_is_ptr(src)) {
-            dest->size = xs_size(src);
-            dest->capacity = src->capacity;
+        dest->size = src->size;
+        dest->capacity = src->capacity;
+        dest->is_ptr = true;
         if (src->size > 254) {
             dest->ptr = src->ptr;
         } else {
-            char **tmp = &dest->ptr;
-            *tmp = *src->ptr;
+            dest->ptr = malloc((size_t) 1 << src->capacity);
+            if (!dest->ptr) {
+                perror("malloc failed");
+                return NULL;
+            }
+            memcpy(dest->ptr, src->ptr, src->size + 1);
         }
     } else {
-        memcpy(dest->data, src->data, xs_size(src));
+        memcpy(dest->data, src->data, xs_size(src) + 1);
         dest->is_ptr = false;
-        dest->space_left = 15 - xs_size(src);
+        dest->space_left = src->space_left;
     }
     return dest;
 }
